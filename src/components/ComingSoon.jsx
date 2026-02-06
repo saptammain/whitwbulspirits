@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { FaInstagram, FaFacebookF, FaYoutube, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaFacebookF, FaLinkedin } from "react-icons/fa";
+
 import vdo from "../assets/main.mp4";
 import whitebull from "../assets/whitebulLogo.png";
 import glenwright from "../assets/glenWright.webp";
@@ -7,33 +8,53 @@ import glenwright from "../assets/glenWright.webp";
 export default function ComingSoon() {
   const [email, setEmail] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleNotifyMe = () => {
-    if (email && email.includes("@")) {
+  const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbyvS4mShhd_rrkE41upo6w13Lju2TTWyFswvvulCvJdGnAX-uJkni74MsJAjDYwECF6/exec";
+
+  const handleNotifyMe = async () => {
+    if (!email || !email.includes("@")) return;
+
+    try {
+      setLoading(true);
+
+      // ✅ Use FormData (NO JSON, NO headers)
+      const formData = new FormData();
+      formData.append("email", email);
+
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: formData,
+      });
+
       setShowPopup(true);
       setEmail("");
-      // Auto close popup after 3 seconds
+
       setTimeout(() => setShowPopup(false), 3000);
+    } catch (error) {
+      console.error("Email submit error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="relative h-screen h-[100dvh] w-full overflow-hidden text-white">
-
-      {/* Thank You Popup */}
+    <div className="relative min-h-[100dvh] w-full overflow-hidden text-white">
+      {/* THANK YOU POPUP */}
       {showPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
-          <div className="bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] border border-[#c9b27d] rounded-lg p-6 sm:p-8 md:p-10 max-w-md w-full text-center shadow-2xl animate-fade-in">
+          <div className="w-full max-w-md rounded-lg border border-[#c9b27d] bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] p-6 sm:p-8 text-center shadow-2xl">
             <div className="text-4xl sm:text-5xl mb-4">🥂</div>
-            <h2 className="font-cinzel text-xl sm:text-2xl md:text-3xl text-[#f1e6c8] mb-3">
+            <h2 className="font-cinzel text-xl sm:text-2xl text-[#f1e6c8] mb-2">
               Thank You!
             </h2>
-            <p className="font-cormorant text-base sm:text-lg text-[#cfc7b3] italic">
-              We Will Connect With You Soon
+            <p className="font-cormorant text-sm sm:text-base italic text-[#cfc7b3]">
+              We will connect with you soon
             </p>
             <button
               onClick={() => setShowPopup(false)}
-              className="mt-6 px-6 py-2 border border-[#c9b27d] text-[#e6d3a3] font-cinzel uppercase text-sm tracking-wider hover:bg-[#c9b27d] hover:text-black transition rounded-sm"
+              className="mt-6 px-6 py-2 border border-[#c9b27d] text-[#e6d3a3] uppercase text-xs sm:text-sm tracking-wider hover:bg-[#c9b27d] hover:text-black transition"
             >
               Close
             </button>
@@ -41,7 +62,7 @@ export default function ComingSoon() {
         </div>
       )}
 
-      {/* Background Video */}
+      {/* BACKGROUND VIDEO */}
       <video
         autoPlay
         loop
@@ -52,159 +73,79 @@ export default function ComingSoon() {
         <source src={vdo} type="video/mp4" />
       </video>
 
-      {/* Dark Overlay */}
+      {/* DARK OVERLAY */}
       <div className="absolute inset-0 bg-black/70" />
 
-      {/* 🔝 WHITEBULL LOGO (TOP) */}
-      <div className="absolute top-[4%] sm:top-[3%] md:top-[4%] left-1/2 z-20 -translate-x-1/2">
+      {/* TOP LOGO */}
+      <div className="pointer-events-none absolute top-4 sm:top-6 left-1/2 z-20 -translate-x-1/2">
         <img
           src={whitebull}
           alt="Whitebull Spirits"
-          className="h-24 min-h-[96px] sm:h-[12vh] md:h-[14vh] lg:h-[16vh] w-auto opacity-90"
+          className="h-24 lg:h-32 w-auto opacity-90"
         />
       </div>
 
-      {/* Center Content */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 text-center">
-
-        {/* Main Quote */}
-        <h1
-          className="
-            font-cormorant
-            text-[clamp(1.25rem,5vw,3.5rem)]
-            font-medium
-            text-[#f1e6c8]
-            drop-shadow-[0_6px_20px_rgba(0,0,0,0.7)]
-            leading-tight
-            px-4
-          "
-        >
-          Where time leaves its signature.
+      {/* CENTER CONTENT */}
+      <div className="relative z-10 flex min-h-[100dvh] flex-col items-center justify-center px-4 text-center">
+        <h1 className="font-cormorant text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium bg-gradient-to-r from-white via-[#f1e6c8] to-[#D1962B] bg-clip-text text-transparent drop-shadow-xl">
+          Bold By Nature. Rare By Choice.
         </h1>
 
-        {/* Sub Quote */}
-        <p
-          className="
-            mt-[1vh]
-            sm:mt-[1.5vh]
-            font-cormorant
-            text-[clamp(0.65rem,2vw,1.125rem)]
-            italic
-            text-[#cfc7b3]
-            opacity-90
-          "
-        >
+        <p className="mt-2 font-cormorant text-sm italic text-[#cfc7b3]">
           Because standards matter.
         </p>
 
-        {/* Stay Connected */}
-        <p
-          className="
-            mt-[3vh]
-            sm:mt-[4vh]
-            font-cinzel
-            uppercase
-            tracking-[0.15em]
-            sm:tracking-[0.2em]
-            md:tracking-[0.3em]
-            text-[clamp(0.5rem,1.5vw,0.875rem)]
-            text-[#e6d3a3]
-          "
-        >
+        <p className="mt-6 font-cinzel text-sm uppercase tracking-widest text-[#e6d3a3]">
           Stay Connected
         </p>
 
-        {/* Email Form */}
-        <div className="mt-[1.5vh] sm:mt-[2vh] flex w-[90%] sm:w-[80%] md:w-[70%] lg:w-[50%] max-w-lg flex-col sm:flex-row gap-2 sm:gap-3">
+        {/* EMAIL FORM */}
+        <div className="mt-4 flex w-full max-w-md flex-col sm:flex-row gap-2">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email address"
-            className="
-              flex-1
-              bg-black/40
-              border
-              border-[#c9b27d]
-              px-3
-              sm:px-4
-              py-2
-              sm:py-2.5
-              md:py-3
-              text-[clamp(0.65rem,1.5vw,0.875rem)]
-              text-white
-              font-cormorant
-              placeholder:text-[#b8ad94]
-              outline-none
-              focus:border-[#e6d3a3]
-              rounded-sm
-            "
+            disabled={loading}
+            className="flex-1 bg-black/40 border border-[#c9b27d] px-4 py-2 text-xs sm:text-sm text-white placeholder:text-[#b8ad94] outline-none focus:border-[#e6d3a3]"
           />
+
           <button
             onClick={handleNotifyMe}
-            className="
-              bg-transparent
-              border
-              border-[#c9b27d]
-              px-4
-              sm:px-5
-              md:px-6
-              py-2
-              sm:py-2.5
-              md:py-3
-              text-[clamp(0.6rem,1.3vw,0.875rem)]
-              font-cinzel
-              uppercase
-              tracking-wider
-              sm:tracking-widest
-              text-[#e6d3a3]
-              hover:bg-[#c9b27d]
-              hover:text-black
-              transition
-              rounded-sm
-              whitespace-nowrap
-              flex-shrink-0
-            "
+            disabled={loading}
+            className="border border-[#c9b27d] px-5 py-2 text-xs sm:text-sm uppercase tracking-wider text-[#e6d3a3] hover:bg-[#c9b27d] hover:text-black transition whitespace-nowrap"
           >
-            Notify Me
+            {loading ? "Sending..." : "Notify Me"}
           </button>
         </div>
 
-        {/* Tagline */}
-        <p
-          className="
-            mt-[2vh]
-            sm:mt-[2.5vh]
-            font-cormorant
-            text-[clamp(0.55rem,1.3vw,0.875rem)]
-            text-[#b8ad94]
-            italic
-          "
-        >
+        <p className="mt-4 font-cormorant text-sm italic text-[#b8ad94]">
           Shared selectively. Never excessive.
         </p>
 
-        {/* Social Icons */}
-        <div className="mt-[2.5vh] sm:mt-[3vh] flex gap-3 sm:gap-4 md:gap-5 text-[#b8ad94]">
-          <FaInstagram className="text-[clamp(1rem,2.5vw,1.5rem)] hover:text-[#e6d3a3] transition cursor-pointer" />
-          <FaFacebookF className="text-[clamp(1rem,2.5vw,1.5rem)] hover:text-[#e6d3a3] transition cursor-pointer" />
-          <FaYoutube className="text-[clamp(1rem,2.5vw,1.5rem)] hover:text-[#e6d3a3] transition cursor-pointer" />
-          <FaTwitter className="text-[clamp(1rem,2.5vw,1.5rem)] hover:text-[#e6d3a3] transition cursor-pointer" />
+        {/* SOCIAL ICONS */}
+        <div className="mt-5 flex gap-5">
+          <a href="https://www.instagram.com/glenwright_scotch?igsh=MXJlb2ttOHRzYmhtYQ%3D%3D&utm_source=qr" target="_blank" rel="noreferrer">
+            <FaInstagram className="text-lg text-[#b8ad94] hover:opacity-80 transition" />
+          </a>
+
+          <a href="https://www.facebook.com/profile.php?id=61587559678198" target="_blank" rel="noreferrer">
+            <FaFacebookF className="text-lg text-[#b8ad94] hover:opacity-80 transition" />
+          </a>
+
+          <a href="https://www.linkedin.com/in/subirarora/" target="_blank" rel="noreferrer">
+            <FaLinkedin className="text-lg text-[#b8ad94] hover:opacity-80 transition" />
+          </a>
         </div>
       </div>
 
-      {/* Bottom Logo */}
-      <div className="absolute bottom-14 sm:bottom-4 md:bottom-5 w-full flex flex-col items-center opacity-90 px-4">
-        <img
-          src={glenwright}
-          alt="The Glenwright"
-          className="h-12 sm:h-14 md:h-16 lg:h-20 w-auto"
-        />
-        <p className="mt-1 text-xs sm:text-xs md:text-sm text-[#b8ad94] font-cormorant italic text-center">
-         Belongs to the Bold
+      {/* BOTTOM LOGO */}
+      <div className="absolute bottom-4 w-full flex flex-col items-center">
+        <img src={glenwright} alt="The Glenwright" className="h-16 md:h-24" />
+        <p className="mt-1 text-lg text-[#b8ad94] font-cormorant italic">
+          Belongs to the Bold
         </p>
       </div>
-
     </div>
   );
 }
